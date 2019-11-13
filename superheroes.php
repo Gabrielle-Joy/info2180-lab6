@@ -65,13 +65,24 @@ $superheroes = [
 
 function sanitizeData($data) {
   $data = htmlspecialchars($data);
-  return $data;
+  $data = filter_var($data, FILTER_SANITIZE_SPECIAL_CHARS);
+  if (preg_match("/\s||[A-Za-z\s]+/", $data)) {
+    return $data;
+  } else {
+    return 0;
+  }
 }
 
 $found = FALSE;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   $result = sanitizeData($_GET["query"]);
+  // echo $result;
+  if ($result===0) {
+    ?>
+    <h3>SUPERHERO NOT FOUND</h3>
+    <?php
+  }
   if($result!=="") {
     foreach($superheroes as $hero){
       if(($hero['name'] === $result) || ($hero['alias'] === $result)){
@@ -81,12 +92,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         <h4>A.K.A. <?= $hero['name'];?></h4>
         <p><?= $hero['biography'];?></p>
       <?php
+        break;
       } else {
         $found = FALSE;
       }
     }
     if ($found === FALSE) {
-      echo "not found";
+      ?>
+      <h3>SUPERHERO NOT FOUND</h3>
+      <?php
     }
   } else {
   ?>
