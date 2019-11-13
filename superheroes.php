@@ -63,10 +63,39 @@ $superheroes = [
   ], 
 ];
 
+function sanitizeData($data) {
+  $data = htmlspecialchars($data);
+  return $data;
+}
+
+$found = FALSE;
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+  $result = sanitizeData($_GET["query"]);
+  if($result!=="") {
+    foreach($superheroes as $hero){
+      if(($hero['name'] === $result) || ($hero['alias'] === $result)){
+        $found = TRUE;
+      ?>
+        <h3><?= $hero['alias'];?></h3>
+        <h4>A.K.A. <?= $hero['name'];?></h4>
+        <p><?= $hero['biography'];?></p>
+      <?php
+      } else {
+        $found = FALSE;
+      }
+    }
+    if ($found === FALSE) {
+      echo "not found";
+    }
+  } else {
+  ?>
+    <ul>
+    <?php foreach ($superheroes as $superhero): ?>
+      <li><?= $superhero['alias']; ?></li>
+    <?php endforeach; ?>
+    </ul><?php
+  }
+}
 ?>
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
